@@ -1,0 +1,27 @@
+<%@ val tribune: String %>
+<%@ val logins: List[String] %>
+
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Statistiques</title>
+    <link href="/stats/style.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="header">
+    <h2>Tribune ${tribune}</h2>
+</div>
+
+<div id="content">
+    <ul>
+#for (x <- logins)
+        <li><a href="/s/t/${tribune}/l/${x}.html">${x}</a></li>
+#end
+    </ul>
+</div>
+
+
+</body>
+</html>
