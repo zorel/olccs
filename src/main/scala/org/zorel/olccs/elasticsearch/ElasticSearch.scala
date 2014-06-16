@@ -129,7 +129,17 @@ object ElasticSearch {
       setTypes("post").
       setQuery(QueryBuilders.rangeQuery("time").gte(date.toString("yyyyMMddHHmmss"))).
       addAggregation(dateHistogram("histogram").field("time").interval(DateHistogram.Interval.minutes(1)).minDocCount(0).extendedBounds(date.toString("yyyyMMddHHmmss"), LocalDateTime.now.toString("yyyyMMddHHmmss")).
-        subAggregation(terms("uas").field("info").size(50))).
+      subAggregation(terms("uas").field("info").size(50))).
+      setSize(0)
+    r.execute().actionGet()
+  }
+
+  def tribunes_calendar(index: String): SearchResponse = {
+    val r = client.
+      prepareSearch(index).
+      setTypes("post").
+      setQuery(QueryBuilders.matchAllQuery()).
+      addAggregation(dateHistogram("histogram").field("time").interval(DateHistogram.Interval.days(1)).minDocCount(0)).
       setSize(0)
     r.execute().actionGet()
   }

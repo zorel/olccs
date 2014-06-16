@@ -58,6 +58,21 @@ class StatsServlet extends OlccsStack {
     }
   }
 
+  get("/t/:tribune/calendar(.:ext)") {
+    params.getOrElse("ext","html") match {
+      case "json" => {
+        contentType = formats("json")
+        val r = ElasticSearch.tribunes_calendar(params("tribune"))
+        Ok(r.toString)
+      }
+      case "html" => {
+        contentType = formats("html")
+        ssp("/stats/tribune_calendar.ssp", "tribune" -> params("tribune"))
+      }
+    }
+  }
+
+
   get("/t/:tribune/l/:login(.:ext)") {
     params.getOrElse("ext","html") match {
       case "json" => {
