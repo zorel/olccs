@@ -29,6 +29,7 @@ object OlccsBuild extends Build {
         "org.jsoup" % "jsoup" % "1.7.3",
         "com.netaporter" %% "scala-uri" % "0.4.1",
         "uk.co.bigbeeconsultants" %% "bee-client" % "0.26.6",
+        "uk.co.bigbeeconsultants" %% "bee-config" % "1.1.+",
         "org.scalatra" %% "scalatra-json" % "2.2.2",
         "org.json4s"   %% "json4s-jackson" % "3.1.0",
         "org.eclipse.jetty" % "jetty-websocket" % "8.1.8.v20121106" % "container",
@@ -45,6 +46,7 @@ object OlccsBuild extends Build {
         "org.scalatra" %% "scalatra-auth" % ScalatraVersion,
         "com.github.nscala-time" %% "nscala-time" % "1.2.0",
         "org.scribe" % "scribe" % "1.3.5",
+        "nl.grons" %% "metrics-scala" % "3.2.0_a2.3",
         "ch.qos.logback" % "logback-classic" % "1.0.13" % "runtime",
         "org.eclipse.jetty" % "jetty-webapp" % "8.1.10.v20130312" % "container",
         "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container;provided;test" artifacts (Artifact("javax.servlet", "jar", "jar"))

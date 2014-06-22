@@ -18,51 +18,54 @@ class TribuneServlet extends OlccsStack {
   val l = LoggerFactory.getLogger(getClass)
 
   get("/:tribune/remote(.:ext)") {
-    request.getHeader("X-Olccs-Private") match {
-      case "1" => {
-        val name = params("tribune")
-        val get_url = params("getUrl")
-        val post_url = params("postUrl")
-        val post_parameter = params("postData")
-        val slip = params("slip")
-        val from = params.getOrElse("last", "0").toInt
-        val b = CustomBoard(name, get_url, "last", Slip.Encoded, post_url, post_parameter)
-        params.getOrElse("ext","xml") match {
-          case "json" => {
-            contentType = formats("json")
-            Ok(b.backend_json)
-          }
-          case "xml" => {
-            contentType = formats("xml")
-            Ok(b.backend_xml)
-          }
-          case "tsv" => {
-            contentType = formats("tsv")
-            Ok(b.backend_tsv)
+    val timer = metrics.timer("get-remote")
+    timer.time {
+      request.getHeader("X-Olccs-Private") match {
+        case "1" => {
+          val name = params("tribune")
+          val get_url = params("getUrl")
+          val post_url = params("postUrl")
+          val post_parameter = params("postData")
+          val slip = params("slip")
+          val from = params.getOrElse("last", "0").toInt
+          val b = CustomBoard(name, get_url, "last", Slip.Encoded, post_url, post_parameter)
+          params.getOrElse("ext", "xml") match {
+            case "json" => {
+              contentType = formats("json")
+              Ok(b.backend_json)
+            }
+            case "xml" => {
+              contentType = formats("xml")
+              Ok(b.backend_xml)
+            }
+            case "tsv" => {
+              contentType = formats("tsv")
+              Ok(b.backend_tsv)
+            }
           }
         }
-      }
-      case _ => {
-        val b = ConfiguredBoard.boards(params("tribune"))
-        val from = params.getOrElse("last", "0").toInt
-        val to:Option[Int] = params.get("to") match {
-          case Some(t) => Some(t.toInt)
-          case None => None
-        }
+        case _ => {
+          val b = ConfiguredBoard.boards(params("tribune"))
+          val from = params.getOrElse("last", "0").toInt
+          val to: Option[Int] = params.get("to") match {
+            case Some(t) => Some(t.toInt)
+            case None => None
+          }
 
-        val size:Int = params.getOrElse("size","50").toInt
-        params.getOrElse("ext","xml") match {
-          case "json" => {
-            contentType = formats("json")
-            Ok(b.backend_json(from,to,size))
-          }
-          case "xml" => {
-            contentType = formats("xml")
-            Ok(b.backend_xml(from,to,size))
-          }
-          case "tsv" => {
-            contentType = formats("tsv")
-            Ok(b.backend_tsv(from,to,size))
+          val size: Int = params.getOrElse("size", "50").toInt
+          params.getOrElse("ext", "xml") match {
+            case "json" => {
+              contentType = formats("json")
+              Ok(b.backend_json(from, to, size))
+            }
+            case "xml" => {
+              contentType = formats("xml")
+              Ok(b.backend_xml(from, to, size))
+            }
+            case "tsv" => {
+              contentType = formats("tsv")
+              Ok(b.backend_tsv(from, to, size))
+            }
           }
         }
       }
@@ -73,25 +76,25 @@ class TribuneServlet extends OlccsStack {
   get("/:tribune/search(.:ext)") {
     val b = ConfiguredBoard.boards(params("tribune"))
     val from = params.getOrElse("last", "0").toInt
-    val query = params.getOrElse("query","")
-    val to:Option[Int] = params.get("to") match {
+    val query = params.getOrElse("query", "")
+    val to: Option[Int] = params.get("to") match {
       case Some(t) => Some(t.toInt)
       case None => None
     }
 
-    val size:Int = params.getOrElse("size","50").toInt
-    params.getOrElse("ext","xml") match {
+    val size: Int = params.getOrElse("size", "50").toInt
+    params.getOrElse("ext", "xml") match {
       case "json" => {
         contentType = formats("json")
-        Ok(b.search_json(query,from,to,size))
+        Ok(b.search_json(query, from, to, size))
       }
       case "xml" => {
         contentType = formats("xml")
-        Ok(b.search_xml(query,from,to,size))
+        Ok(b.search_xml(query, from, to, size))
       }
       case "tsv" => {
         contentType = formats("tsv")
-        Ok(b.search_tsv(query,from,to,size))
+        Ok(b.search_tsv(query, from, to, size))
       }
     }
   }
@@ -99,11 +102,11 @@ class TribuneServlet extends OlccsStack {
   get("/:tribune/reference-search(.:ext)") {
     val b = ConfiguredBoard.boards(params("tribune"))
     val from = params.getOrElse("from", Int.MaxValue.toString).toInt
-    val res = b.post_from_horloge(params("timestamp"),from)
+    val res = b.post_from_horloge(params("timestamp"), from)
     res.length match {
       case 0 => NotFound("no response")
       case _ =>
-        params.getOrElse("ext","xml") match {
+        params.getOrElse("ext", "xml") match {
           case "json" => {
             contentType = formats("json")
             Ok(res(0).to_s)
@@ -159,7 +162,7 @@ class TribuneServlet extends OlccsStack {
         val post_data = params("postdata")
         val pos_equal = post_data.indexOf('=')
         val post_parameter = post_data.substring(0, pos_equal)
-        val message = post_data.substring(pos_equal+1, post_data.length)
+        val message = post_data.substring(pos_equal + 1, post_data.length)
         val cb = CustomBoard(name, get_url, "last", Slip.Encoded, post_url, post_parameter)
         xpostid = cb.post(cookies.toMap, user_agent, message)
         response.setHeader("X-Post-Id", xpostid)
@@ -171,7 +174,7 @@ class TribuneServlet extends OlccsStack {
         xpostid = b.post(cookies.toMap, user_agent, message)
         response.setHeader("X-Post-Id", xpostid)
         params.get("last") match {
-          case Some(l) => params.getOrElse("ext","xml") match {
+          case Some(l) => params.getOrElse("ext", "xml") match {
             case "json" => {
               contentType = formats("json")
               Ok(b.backend_json(l.toInt))
@@ -198,7 +201,7 @@ class TribuneServlet extends OlccsStack {
     val login = params("user")
     val password = params("password")
 
-    val cookies = b.login(login,password)
+    val cookies = b.login(login, password)
     l.info(cookies.toString)
 
     cookies.map(c => response.addCookie(org.scalatra.Cookie(c._1, c._2)))
@@ -206,18 +209,18 @@ class TribuneServlet extends OlccsStack {
     Ok("ok")
 
   }
-//  request.getHeader("X-Olccs-Private").toInt == 1
+  //  request.getHeader("X-Olccs-Private").toInt == 1
 
   post("/:tribune/post(.:ext)", params.getOrElse("private", "0") == "1") {
     val postdata = params("postdata")
     val ua = params("ua")
     val post_url = params("posturl")
     val pos = postdata.indexOf('=')
-    val post_parameter = postdata take pos-1
-    val post_value = postdata.drop(pos+1).replace("#{plus}#","+").
-      replace("#{amp}#","&").
-      replace("#{dcomma}#",";").
-      replace("#{percent}#","%")
+    val post_parameter = postdata take pos - 1
+    val post_value = postdata.drop(pos + 1).replace("#{plus}#", "+").
+      replace("#{amp}#", "&").
+      replace("#{dcomma}#", ";").
+      replace("#{percent}#", "%")
 
     val headers = Headers(
       USER_AGENT -> ua,
@@ -256,7 +259,7 @@ class TribuneServlet extends OlccsStack {
       hostnameVerifier = Some(new ssl.DumbHostnameVerifier))
 
     val domain = new java.net.URL(post_url).getHost
-    val cj: CookieJar = CookieJar(cookies.map(x => Cookie(x._1,x._2, domain)).toList)
+    val cj: CookieJar = CookieJar(cookies.map(x => Cookie(x._1, x._2, domain)).toList)
 
     val http_client = new HttpClient(config)
 
@@ -271,7 +274,6 @@ class TribuneServlet extends OlccsStack {
 
     response.setHeader("X-Post-Id", xpostid)
   }
-
 
 
 }

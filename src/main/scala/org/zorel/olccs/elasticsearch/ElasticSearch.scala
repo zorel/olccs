@@ -14,6 +14,8 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonAST.JValue
 import com.github.nscala_time.time.Imports._
+import org.zorel.olccs.Instrumented
+import org.zorel.olccs.OlccsConfig
 import org.zorel.olccs.models.{Link, Post}
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.index.query.{QueryBuilders, QueryBuilder}
@@ -21,24 +23,27 @@ import org.elasticsearch.search.sort.SortOrder
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram
 
 
-object ElasticSearch {
+object ElasticSearch extends Instrumented {
 
   // ClientPool initialise (NodeBuilder.nodeBuilder().clusterName("twitter").client(true).node)
   val l = LoggerFactory.getLogger(getClass)
+  val indexing = metrics.timer("indexing")
+  val querying = metrics.timer("querying")
+
 
   //  def init(hosts: String) {
   val settings = ImmutableSettings.settingsBuilder()
   settings.put("client.transport.sniff", true)
   settings.put("discovery.zen.ping.multicast.enabled", false)
-  settings.put("discovery.zen.ping.unicast.hosts", "127.0.0.1")
+  settings.put("discovery.zen.ping.unicast.hosts", OlccsConfig.config("elasticsearch_address"))
 
-  val node: Node = NodeBuilder.nodeBuilder().settings(settings.build).clusterName("olccs").client(true).node
+  val node: Node = NodeBuilder.nodeBuilder().settings(settings.build).clusterName(OlccsConfig.config("elasticsearch_cluster_name")).client(true).node
   val client: Client = node.client
   //  }
 
   implicit val formats = DefaultFormats
 
-  def index(index: String, post: Post) {
+  def index(index: String, post: Post) = indexing.time {
     val json = post.to_json
     val id = post.id
     try {
@@ -70,7 +75,7 @@ object ElasticSearch {
 //    }
 //  }
 
-  def query(index: String, q: QueryBuilder, size:Int=50): SearchResponse = {
+  def query(index: String, q: QueryBuilder, size:Int=50): SearchResponse = querying.time {
     val r = client.
       prepareSearch(index).
       addFields("id","board","time","info","login","message").

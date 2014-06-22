@@ -1,3 +1,4 @@
+import com.codahale.metrics.JmxReporter
 import org.slf4j.LoggerFactory
 import org.zorel.olccs._
 import org.scalatra._
@@ -35,7 +36,7 @@ class ScalatraBootstrap extends LifeCycle {
     val l = LoggerFactory.getLogger(getClass)
     l.info("Initializing Scalatra Bootstrap")
     Scheduler.start
-    context.initParameters("org.scalatra.environment") = "production"
+    context.initParameters("org.scalatra.environment") = OlccsConfig.config("env")
 
     context mount (new OlccsServlet, "/*")
     context mount (new TribuneServlet, "/t/*")
@@ -49,4 +50,3 @@ class ScalatraBootstrap extends LifeCycle {
     system.shutdown()
   }
 }
-
