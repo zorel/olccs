@@ -47,6 +47,8 @@ object OlccsBuild extends Build {
         "com.github.nscala-time" %% "nscala-time" % "1.2.0",
         "org.scribe" % "scribe" % "1.3.5",
         "nl.grons" %% "metrics-scala" % "3.2.0_a2.3",
+	"com.codahale.metrics" % "metrics-graphite" % "3.0.2",
+	"com.codahale.metrics" % "metrics-jvm" % "3.0.2",
         "ch.qos.logback" % "logback-classic" % "1.0.13" % "runtime",
         "org.eclipse.jetty" % "jetty-webapp" % "8.1.10.v20130312" % "container",
         "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container;provided;test" artifacts (Artifact("javax.servlet", "jar", "jar"))

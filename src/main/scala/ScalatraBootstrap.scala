@@ -1,4 +1,4 @@
-import com.codahale.metrics.JmxReporter
+import java.util.concurrent.TimeUnit
 import org.slf4j.LoggerFactory
 import org.zorel.olccs._
 import org.scalatra._
@@ -37,6 +37,8 @@ class ScalatraBootstrap extends LifeCycle {
     l.info("Initializing Scalatra Bootstrap")
     Scheduler.start
     context.initParameters("org.scalatra.environment") = OlccsConfig.config("env")
+
+    OlccsConfig.graphiteReporter.start(1, TimeUnit.MINUTES)
 
     context mount (new OlccsServlet, "/*")
     context mount (new TribuneServlet, "/t/*")

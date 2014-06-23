@@ -1,8 +1,12 @@
 package org.zorel.olccs
 
 import java.io.File
-
-import com.codahale.metrics.JmxReporter
+import java.util.concurrent.TimeUnit
+import java.lang.management.ManagementFactory
+import java.net.InetSocketAddress
+import com.codahale.metrics._
+import com.codahale.metrics.graphite._
+import com.codahale.metrics.jvm._
 import org.slf4j.LoggerFactory
 import uk.co.bigbeeconsultants.bconfig.Config
 
@@ -20,8 +24,20 @@ object OlccsConfig {
     fallback
   }
 
-  val reporter = JmxReporter.forRegistry(metricRegistry).build();
-  reporter.start();
+
+  metricRegistry.register("jvm.buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()))
+  metricRegistry.register("jvm.gc", new GarbageCollectorMetricSet())
+  metricRegistry.register("jvm.memory", new MemoryUsageGaugeSet())
+  metricRegistry.register("jvm.threads", new ThreadStatesGaugeSet())
+
+  val graphite: Graphite = new Graphite(new InetSocketAddress("127.0.0.1", 2003))
+
+  def graphiteReporter = GraphiteReporter.forRegistry(metricRegistry)
+                                             .prefixedWith("olccs.halifirien.info")
+                                             .convertRatesTo(TimeUnit.SECONDS)
+                                             .convertDurationsTo(TimeUnit.MILLISECONDS)
+                                             .filter(MetricFilter.ALL)
+                                             .build(graphite)
 }
 
 
