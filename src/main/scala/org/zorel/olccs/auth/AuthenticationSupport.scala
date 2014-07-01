@@ -5,19 +5,17 @@ package org.zorel.olccs.auth
  */
 import org.scalatra.auth.{ScentrySupport, ScentryConfig}
 import org.scalatra.{FlashMapSupport, ScalatraBase}
-import org.zorel.olccs.models.User
+import org.zorel.olccs.models._
 
 
-trait AuthenticationSupport extends ScentrySupport[User] {
+trait AuthenticationSupport extends ScentrySupport[U] {
   self: ScalatraBase =>
 
   val realm = "Scalatra Basic Auth Example"
 
-  protected def fromSession = { case id: String => User.byId(id) }
-  protected def toSession = { case usr: User => usr.id }
-
-  protected val scentryConfig = (new ScentryConfig {}).asInstanceOf[ScentryConfiguration]
-
+  protected def fromSession = { case name: String => User.byLogin(name).get }
+  protected def toSession = { case usr: U => usr.name }
+  protected val scentryConfig = (new ScentryConfig{}).asInstanceOf[ScentryConfiguration]
 
   override protected def configureScentry = {
     scentry.unauthenticated {
@@ -28,6 +26,7 @@ trait AuthenticationSupport extends ScentrySupport[User] {
   override protected def registerAuthStrategies = {
     scentry.register("OAuth", app => new OurOAuthStrategy(app))
   }
+
 
 
 

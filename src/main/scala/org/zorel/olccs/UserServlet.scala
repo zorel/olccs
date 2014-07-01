@@ -3,7 +3,6 @@ package org.zorel.olccs
 import org.slf4j.LoggerFactory
 import org.zorel.olccs.auth.OauthStrategy
 import org.scribe.model.{Token, Verifier, Verb, OAuthRequest}
-import org.scalatra.DefaultValues
 import scala.util.parsing.json.JSON
 
 /**
@@ -26,7 +25,6 @@ class UserServlet extends OlccsStack {
     }
   }
 
-
   get("/") {
     redirectIfNotAuthenticated
 
@@ -39,18 +37,11 @@ class UserServlet extends OlccsStack {
   }
 
   get("/login"){
-    val tUrl = OauthStrategy.getRequestTokenUrl(null)
-
-//    session("oauth_token") = OauthStrategy.oauth_token
-    println(tUrl)
-
-//    println(session)
-//    println(session("oauth_token"))
+    val tUrl = OauthStrategy.getRequestTokenUrl
 
     redirectIfAuthenticated
 
     contentType="text/html"
-
     "<html>" +
       "<body>" +
       "<a href=\""+tUrl+"\">Login</a>" +
@@ -64,31 +55,34 @@ class UserServlet extends OlccsStack {
 
   get("/oauth2callback"){
     println(params)
-    val t = OauthStrategy.service.getAccessToken(null, new Verifier(params("code")))
-    println(t)
+    OauthStrategy.service.getAccessToken(null, new Verifier(params("code"))) match {
+      case t: Token => {
+        println(t)
 
-    val r = new OAuthRequest(Verb.GET, "http://linuxfr.org/auth/oauth/user")
+        val r = new OAuthRequest(Verb.GET, "http://linuxfr.org/auth/oauth/user")
 
-//    OauthStrategy.service.signRequest(t, r)
-    r.addQuerystringParameter("bearer_token", t.getToken)
+        //    OauthStrategy.service.signRequest(t, r)
+        r.addQuerystringParameter("bearer_token", t.getToken)
 
-    val resp = r.send
-    val infos = JSON.parseFull(resp.getBody).get.asInstanceOf[Map[String, String]]
-    val login = infos.get("login").get.asInstanceOf[String]
+        val resp = r.send
+        val infos = JSON.parseFull(resp.getBody).get.asInstanceOf[Map[String, String]]
+        //    val login = infos.get("login").get.asInstanceOf[String]
+        //    Map(login -> hermenegilde, email -> aurelien+42@dehay.info, created_at -> 2012-10-08T15:17:24.000+02:00)
 
-    println(login)
+        session.put("user_name", infos.get("login").get)
+        val user = scentry.authenticate().get
+        val token = user.token
 
-    scentry.authenticate()
-
-    if (isAuthenticated) {
-      println("**SUCCESS**")
-      redirectIfAuthenticated
-    }else{
-      println("FAILED")
-
+        if (isAuthenticated) {
+          contentType = formats("html")
+          ssp("u/token.ssp", "token" -> token, "user" -> user)
+        } else {
+          redirectIfNotAuthenticated
+        }
+      }
+      case _ => {
+        redirectIfNotAuthenticated
+      }
     }
-
-    redirectIfNotAuthenticated
   }
-
 }

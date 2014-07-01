@@ -8,15 +8,13 @@ import javax.servlet.http.HttpServletRequest
 import collection.mutable
 import org.zorel.olccs.auth.AuthenticationSupport
 
-trait OlccsStack extends ScalatraServlet with ScalateSupport
+trait OlccsStack extends ScalatraServlet
+  with ScalateSupport
   with ApiFormats
   with CorsSupport
   with AuthenticationSupport
   with Instrumented {
 
-  notFound(
-    "Not found"
-  )
   /* wire up the precompiled templates */
 
   override protected implicit def string2RouteMatcher(path: String): RouteMatcher = RailsPathPatternParser(path)

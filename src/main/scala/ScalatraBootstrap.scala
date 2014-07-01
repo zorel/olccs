@@ -5,7 +5,11 @@ import org.scalatra._
 import javax.servlet.ServletContext
 import org.zorel.olccs.elasticsearch.ElasticSearch
 import _root_.akka.actor.ActorSystem
-import org.zorel.olccs.models.{ConfiguredBoard, Scheduler, Slip, Board}
+import org.zorel.olccs.models._
+import scala.slick.driver.H2Driver.simple._
+
+
+import scala.slick.session.Session
 
 class ScalatraBootstrap extends LifeCycle {
   val system = ActorSystem("OlccsSystem")
@@ -39,7 +43,15 @@ class ScalatraBootstrap extends LifeCycle {
     context.initParameters("org.scalatra.environment") = OlccsConfig.config("env")
 
     OlccsConfig.graphiteReporter.start(1, TimeUnit.MINUTES)
-
+    try {
+      l.info("Creating database")
+      OlccsConfig.db withSession { implicit session: Session =>
+        (User.ddl ++ Storage.ddl).create
+      }
+      l.info("Database created")
+    } catch {
+      case e: Throwable => l.info("Database already exists")
+    }
     context mount (new OlccsServlet, "/*")
     context mount (new TribuneServlet, "/t/*")
     context mount (new UserServlet, "/u/*")

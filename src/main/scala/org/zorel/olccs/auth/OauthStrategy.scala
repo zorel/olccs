@@ -3,19 +3,14 @@ package org.zorel.olccs.auth
 /**
  * Created by zorel on 2/25/14.
  */
-import java.util._
-
-import org.zorel.olccs.models.User
-import org.scribe.builder._
-import org.scribe.builder.api._
-import org.scribe.builder.api.TwitterApi
-import org.scribe.model._
-import org.scribe.oauth._
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-
-//import net.liftweb.common.{Box, Empty, Failure, Full}
-import org.scalatra.auth.ScentryStrategy
 import org.slf4j.LoggerFactory
+import org.zorel.olccs.OlccsConfig
+import org.zorel.olccs.models._
+import org.scribe.builder._
+import javax.servlet.http.{HttpSession, HttpServletResponse, HttpServletRequest}
+import scala.slick.driver.H2Driver.simple._
+import scala.collection.JavaConversions._
+import org.scalatra.auth.ScentryStrategy
 import org.scalatra._
 
 
@@ -27,56 +22,68 @@ object OauthStrategy {
 
   val service = new ServiceBuilder()
     .provider(classOf[LinuxfrAPI])
-    .apiKey("03147c927e15285b9a8243060803375f")
-    .apiSecret("ede976044b35eaee688d794799e943a2")
-    .callback("http://localhost:8080/u/oauth2callback")
+    .apiKey(OlccsConfig.config("api_key"))
+    .apiSecret(OlccsConfig.config("api_secret"))
+    .callback(OlccsConfig.config("api_callback"))
     .build()
 
-  def getRequestTokenUrl(requestToken: Token)={
-//    oauth_token=requestToken.getToken()
+  def getRequestTokenUrl = {
     service.getAuthorizationUrl(null)
 //    AUTHORIZE_URL + requestToken.getToken()
   }
 
 }
 
-class OurOAuthStrategy(protected val app: ScalatraBase) extends ScentryStrategy[User]
-{
-
-  val COOKIE_KEY = "rememberMe"
+class OurOAuthStrategy(protected val app: ScalatraBase)
+                      (implicit request: HttpServletRequest, response: HttpServletResponse)
+      extends ScentryStrategy[U] {
+  val l = LoggerFactory.getLogger(getClass)
+  val user_name = app.session("user_name").asInstanceOf[String]
 
   private def remoteAddress = {
     val proxied = app.request.getHeader("X-FORWARDED-FOR")
-    val res = if (proxied != "" ) proxied else app.request.getRemoteAddr
+    val res = if (proxied != "") proxied else app.request.getRemoteAddr
 
     res
   }
 
-  /**
-   * Authenticates a user by validating the username (or email) and password request params.
-   */
-  def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[User] = {
-    var ret: Option[User] = None
+  def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[U] = {
 
-    println("param: "+app.params("oauth_token") +" save t: " + app.session("oauth_token"))
-    if(app.params("oauth_token") == app.session("oauth_token")){
-      ret = Some(User.byId("1"))
+    if (user_name == "")
+      return None
+
+    val user = User.byLogin(user_name)
+
+    if (user == None) {
+      OlccsConfig.db withSession { implicit session: scala.slick.session.Session =>
+        User.insert(U(None, user_name, "", User.gen_token(user_name)))
+      }
+      val ret = User.byLogin(user_name)
+      return ret
+    } else {
+      return user
     }
+    //    val ret = user match {
+    //      case Some(u) => Some(u)
+    //      case None => {
+    //        OlccsConfig.db withSession { implicit session: Session =>
+    //          val u = U(app.session("user_name").asInstanceOf[String], "", User.gen_token)
+    //          User.insert(u)
+    //        }
+    //        Some(User.byLogin("user_name"))
+    //      }
 
 
-    ret
+  //    l.debug(ret.get.name)
   }
 
   /**
    * Clears the remember-me cookie for the specified user.
    */
-  override def beforeLogout(u: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+  override def beforeLogout(u: U)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
 
     app.session.invalidate()
 
-    app.cookies.get(COOKIE_KEY) foreach {
-      _ => app.cookies.update(COOKIE_KEY, null)
-    }
   }
 
 }
