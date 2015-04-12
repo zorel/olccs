@@ -11,9 +11,7 @@ import org.zorel.olccs.auth.AuthenticationSupport
 trait OlccsStack extends ScalatraServlet
   with ScalateSupport
   with ApiFormats
-  with CorsSupport
-  with AuthenticationSupport
-  with Instrumented {
+  with CorsSupport {
 
   /* wire up the precompiled templates */
 

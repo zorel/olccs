@@ -11,14 +11,14 @@ class Post(val board: String, val id: Int, val time: String, val info: String, v
 
   val l = LoggerFactory.getLogger(getClass)
 
-  val p: JValue = (("board" -> board) ~
+  val p: JValue = ("board" -> board) ~
     ("id" -> id) ~
     ("time" -> time) ~
     ("info" -> info) ~
     ("login" -> login) ~
     ("message" -> message) ~
     ("type" -> "post")
-  )
+
 
   def to_s: String = {
     compact(render(p))
@@ -69,7 +69,7 @@ object Post {
 
     (message \ "a").map { a =>
       l.info("a trouvé dans message, href= %s".format(a.attributes.get("href").getOrElse(Text("")).text))
-      Link(a.attributes.get("href").getOrElse(Text("")).text, board)
+//      Link(a.attributes.get("href").getOrElse(Text("")).text, board)
     }
 
     val t = new RuleTransformer(rule).transform(message.asInstanceOf[Elem]).toString()

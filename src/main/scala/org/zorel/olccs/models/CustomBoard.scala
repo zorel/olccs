@@ -52,17 +52,15 @@ class CustomBoard(name: String,
 
   def backend_json: String = {
 
-    compact(render((("board" ->
+    compact(render(("board" ->
       ("site" -> name)) ~
       ("posts" -> backend.map { p =>
-        (
           ("id" -> p.id) ~
             ("time" -> p.time) ~
             ("info" -> p.info) ~
             ("login" -> p.login) ~
             ("message" -> p.message)
-          )
-      }))))
+      })))
   }
 
   def backend_xml: Elem = {
@@ -76,26 +74,12 @@ class CustomBoard(name: String,
   }
 
   def backend_tsv: String = {
-    "id\ttime\tinfo\tlogin\tmessage\n" + backend.reverse.map(_.to_tsv).mkString("")
+    "id\ttime\tinfo\tlogin\tmessage\n" + backend.reverseMap(_.to_tsv).mkString("")
   }
 
   override def post(cookies: Map[String, String], ua: String, content: String): String = {
     super.post(cookies, ua, content)
   }
-
-//  def login(login: String, password:String): Map[String,String] = {
-//    val config = Config(followRedirects = false, keepAlive = false)
-//    val http_client = new HttpClient(config)
-//    val cj = CookieJar()
-//    l.info("" + login + " " + password)
-//    val requestBody = RequestBody(Map(login_parameter -> login,password_parameter -> password, "form_id" -> "user_login_block"))
-//    val cookies = http_client.post(login_url, Some(requestBody), Headers(), cj).cookies
-//    l.info(cookies.toString)
-//    cookies match {
-//      case Some(cj) => cj.cookies.map(c => (c.name, c.value)).toMap
-//      case None => Map()
-//    }
-//  }
 }
 
 object CustomBoard {

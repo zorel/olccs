@@ -11,7 +11,6 @@ import uk.co.bigbeeconsultants.http._
 import uk.co.bigbeeconsultants.http.request.RequestBody
 import uk.co.bigbeeconsultants.http.header._
 import scala.collection.immutable.Map
-import org.elasticsearch.index.query.{FilterBuilders, QueryBuilders}
 import header.HeaderName._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -94,7 +93,7 @@ abstract class Board(val name: String,
 
   def sanitized_backend: List[Post] = {
     val b = backend_orig
-    (b \ "post" filter( x => (x \ "@id").text.toInt > lastid)).toList.reverse.map { p =>
+    (b \ "post" filter( x => (x \ "@id").text.toInt > lastid)).toList.reverseMap { p =>
       l.debug("last: " + lastid + "=> " + (p \ "@id").text)
       val m = slip_type match {
         case Slip.Encoded => "<message>" + (p \ "message").text.replaceAll("""(?m)\s+""", " ") + "</message>"
@@ -141,17 +140,15 @@ abstract class Board(val name: String,
 
   def backend_json(from:Int=0, to:Option[Int]=None, size:Int=50): String = {
 
-    compact(render((("board" ->
+    compact(render(("board" ->
       ("site" -> name)) ~
       ("posts" -> backend(from,to,size).map { p =>
-        (
           ("id" -> p.id) ~
           ("time" -> p.time) ~
           ("info" -> p.info) ~
           ("login" -> p.login) ~
           ("message" -> p.message)
-          )
-      }))))
+      })))
   }
 
   def backend_xml(from:Int=0, to:Option[Int]=None, size:Int=50): Elem = {
@@ -166,7 +163,7 @@ abstract class Board(val name: String,
 
   def backend_tsv(from:Int=0, to:Option[Int]=None, size:Int=50): String = {
 //    "board\tid\ttime\tinfo\tlogin\tmessage\n" +
-    backend(from,to,size).reverse.map(_.to_tsv).mkString("")
+    backend(from,to,size).reverseMap(_.to_tsv).mkString("")
   }
 
   def post(cookies: Map[String, String], ua: String, content: String): String = {

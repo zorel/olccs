@@ -17,9 +17,6 @@ import scala.slick.session.{Session, Database}
 
 object OlccsConfig {
   val l = LoggerFactory.getLogger(getClass)
-  /** The application wide metrics registry. */
-  val metricRegistry = new com.codahale.metrics.MetricRegistry()
-
 
   val fallback = Config.fromClasspath("default.properties")
   val file = new File(System.getProperty("user.home")+"/.olccs/config.properties")
@@ -32,29 +29,4 @@ object OlccsConfig {
     fallback
   }
 
-//  metricRegistry.register("jvm.buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()))
-//  metricRegistry.register("jvm.gc", new GarbageCollectorMetricSet())
-//  metricRegistry.register("jvm.memory", new MemoryUsageGaugeSet())
-//  metricRegistry.register("jvm.threads", new ThreadStatesGaugeSet())
-
-  val graphite: Graphite = new Graphite(new InetSocketAddress("127.0.0.1", 2003))
-
-  def graphiteReporter = GraphiteReporter.forRegistry(metricRegistry)
-                                             .prefixedWith("olccs")
-                                             .convertRatesTo(TimeUnit.SECONDS)
-                                             .convertDurationsTo(TimeUnit.MILLISECONDS)
-                                             .filter(MetricFilter.ALL)
-                                             .build(graphite)
-
-  val cpds = new ComboPooledDataSource
-  val db = Database.forDataSource(cpds)
-
-
 }
-
-
-
-trait Instrumented extends nl.grons.metrics.scala.InstrumentedBuilder {
-  val metricRegistry = OlccsConfig.metricRegistry
-}
-

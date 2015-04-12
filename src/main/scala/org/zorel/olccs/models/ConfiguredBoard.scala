@@ -176,20 +176,7 @@ class ConfiguredBoard(name: String,
     val hours = horloge.substring(0,2)
     val minutes = horloge.substring(2,4)
     val seconds = horloge.substring(4,6)
-    val filter = "doc['time'].date.HourOfDay==%d and doc['time'].date.minuteOfHour==%d and  doc['time'].date.SecondOfMinute==%d".format(Integer.parseInt(hours),Integer.parseInt(minutes),Integer.parseInt(seconds))
-    val q = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.scriptFilter(filter))
-
-    val response: SearchResponse = ElasticSearch.query(name, q, 1)
-    val t = for (h: SearchHit <- response.getHits.hits) yield {
-      val id = h.field("id").getValue[Int]
-      val time = h.field("time").getValue[String]
-      val info = h.field("info").getValue[String]
-      val login = h.field("login").getValue[String]
-      val message = h.field("message").getValue[String]
-      Post(name, id, time, info, login, message)
-    }
-    l.info("post_from_horloge %s".format(filter))
-    t.toList
+    // TODO
   }
 
   def login(login: String, password:String): Map[String,String] = {
@@ -214,10 +201,6 @@ class ConfiguredBoard(name: String,
       case Some(cj) => cj.cookies.map(c => (c.name, c.value)).toMap
       case None => Map()
     }
-  }
-
-  def stats: String = {
-    ElasticSearch.tribune_stats(name).toString
   }
 }
 
