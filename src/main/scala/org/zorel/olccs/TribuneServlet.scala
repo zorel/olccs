@@ -1,100 +1,69 @@
 
 package org.zorel.olccs
 
-import org.zorel.olccs.models.{Slip, CustomBoard, ConfiguredBoard}
+import java.security.SecureRandom
+import javax.net.ssl.{KeyManager, SSLContext, TrustManager}
+
 import org.scalatra._
 import org.slf4j.LoggerFactory
-import javax.net.ssl.{KeyManager, SSLContext, TrustManager}
-import java.security.SecureRandom
+import org.zorel.olccs.models.{ConfiguredBoard, CustomBoard, Slip}
 import uk.co.bigbeeconsultants.http._
-import uk.co.bigbeeconsultants.http.request.RequestBody
-import uk.co.bigbeeconsultants.http.header._
 import uk.co.bigbeeconsultants.http.header.HeaderName._
-import scala.Some
-import uk.co.bigbeeconsultants.http.header.Cookie
+import uk.co.bigbeeconsultants.http.header.{Cookie, _}
+import uk.co.bigbeeconsultants.http.request.RequestBody
 
 
 class TribuneServlet extends OlccsStack {
   val l = LoggerFactory.getLogger(getClass)
 
   get("/:tribune/remote(.:ext)") {
-    val timer = metrics.timer("get-remote")
-    timer.time {
-      request.getHeader("X-Olccs-Private") match {
-        case "1" => {
-          val name = params("tribune")
-          val get_url = params("getUrl")
-          val post_url = params("postUrl")
-          val post_parameter = params("postData")
-          val slip = params("slip")
-          val from = params.getOrElse("last", "0").toInt
-          val b = CustomBoard(name, get_url, "last", Slip.Encoded, post_url, post_parameter)
-          params.getOrElse("ext", "xml") match {
-            case "json" => {
-              contentType = formats("json")
-              Ok(b.backend_json)
-            }
-            case "xml" => {
-              contentType = formats("xml")
-              Ok(b.backend_xml)
-            }
-            case "tsv" => {
-              contentType = formats("tsv")
-              Ok(b.backend_tsv)
-            }
+    request.getHeader("X-Olccs-Private") match {
+      case "1" => {
+        val name = params("tribune")
+        val get_url = params("getUrl")
+        val post_url = params("postUrl")
+        val post_parameter = params("postData")
+        val slip = params("slip")
+        val from = params.getOrElse("last", "0").toInt
+        val b = CustomBoard(name, get_url, "last", Slip.Encoded, post_url, post_parameter)
+        params.getOrElse("ext", "xml") match {
+          case "json" => {
+            contentType = formats("json")
+            Ok(b.backend_json)
           }
-        }
-        case _ => {
-          val b = ConfiguredBoard.boards(params("tribune"))
-          val from = params.getOrElse("last", "0").toInt
-          val to: Option[Int] = params.get("to") match {
-            case Some(t) => Some(t.toInt)
-            case None => None
+          case "xml" => {
+            contentType = formats("xml")
+            Ok(b.backend_xml)
           }
-
-          val size: Int = params.getOrElse("size", "50").toInt
-          params.getOrElse("ext", "xml") match {
-            case "json" => {
-              contentType = formats("json")
-              Ok(b.backend_json(from, to, size))
-            }
-            case "xml" => {
-              contentType = formats("xml")
-              Ok(b.backend_xml(from, to, size))
-            }
-            case "tsv" => {
-              contentType = formats("tsv")
-              Ok(b.backend_tsv(from, to, size))
-            }
+          case "tsv" => {
+            contentType = formats("tsv")
+            Ok(b.backend_tsv)
           }
         }
       }
+      case _ => {
+        val b = ConfiguredBoard.boards(params("tribune"))
+        val from = params.getOrElse("last", "0").toInt
+        val to: Option[Int] = params.get("to") match {
+          case Some(t) => Some(t.toInt)
+          case None => None
+        }
 
-    }
-  }
-
-  get("/:tribune/search(.:ext)") {
-    val b = ConfiguredBoard.boards(params("tribune"))
-    val from = params.getOrElse("last", "0").toInt
-    val query = params.getOrElse("query", "")
-    val to: Option[Int] = params.get("to") match {
-      case Some(t) => Some(t.toInt)
-      case None => None
-    }
-
-    val size: Int = params.getOrElse("size", "50").toInt
-    params.getOrElse("ext", "xml") match {
-      case "json" => {
-        contentType = formats("json")
-        Ok(b.search_json(query, from, to, size))
-      }
-      case "xml" => {
-        contentType = formats("xml")
-        Ok(b.search_xml(query, from, to, size))
-      }
-      case "tsv" => {
-        contentType = formats("tsv")
-        Ok(b.search_tsv(query, from, to, size))
+        val size: Int = params.getOrElse("size", "50").toInt
+        params.getOrElse("ext", "xml") match {
+          case "json" => {
+            contentType = formats("json")
+            Ok(b.backend_json(from, to, size))
+          }
+          case "xml" => {
+            contentType = formats("xml")
+            Ok(b.backend_xml(from, to, size))
+          }
+          case "tsv" => {
+            contentType = formats("tsv")
+            Ok(b.backend_tsv(from, to, size))
+          }
+        }
       }
     }
   }

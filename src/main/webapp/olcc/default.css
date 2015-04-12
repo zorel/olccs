@@ -145,6 +145,7 @@ INPUT:focus, SELECT:focus {
   border-color: transparent;
   border-width: 1px;
   border-style: solid;
+  border-radius: 0 3px 3px 0;
   -moz-border-radius-topright: 3px;
   -moz-border-radius-bottomright: 3px;
   -webkit-border-top-right-radius: 3px;
@@ -206,6 +207,7 @@ img.totoz {
   border-color: transparent;
   border-width: 1px;
   border-style: solid;
+  border-radius: 3px 0 0 3px;
   -moz-border-radius-topleft: 3px;
   -moz-border-radius-bottomleft: 3px;
   -webkit-border-top-left-radius: 3px;
@@ -279,6 +281,7 @@ img.totoz {
   border-color: transparent;
   border-width: 1px;
   border-style: solid;
+  border-radius: 3px 0 0 3px;
   -moz-border-radius-topleft: 3px;
   -moz-border-radius-bottomleft: 3px;
   -webkit-border-top-left-radius: 3px;

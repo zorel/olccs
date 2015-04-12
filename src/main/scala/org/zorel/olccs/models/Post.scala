@@ -7,7 +7,7 @@ import org.json4s.JsonAST.JValue
 import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
 
-class Post(val board: String, val id: Int, val time: String, val info: String, val login: String, val message: String) {
+class Post(val board: String, val id: Long, val time: String, val info: String, val login: String, val message: String) {
 
   val l = LoggerFactory.getLogger(getClass)
 
@@ -46,10 +46,10 @@ object Post {
   val l = LoggerFactory.getLogger(getClass)
 
   def apply(board: String, id: String, time: String, info: String, login: String, message: String) = {
-    new Post(board, id.toInt, time, info, login, message)
+    new Post(board, id.toLong, time, info, login, message)
   }
 
-  def apply(board: String, id: Integer, time: String, info: String, login: String, message: String) = {
+  def apply(board: String, id: Long, time: String, info: String, login: String, message: String) = {
     new Post(board, id, time, info, login, message)
   }
 
@@ -80,7 +80,7 @@ object Post {
 
 //    l.info(m)
 //    l.info(id)
-    new Post(board, id.toInt, time, info, login, m.substring(9 , m.length-10))
+    new Post(board, id.toLong, time, info, login, m.substring(9 , m.length-10))
   }
 
 }

@@ -1,25 +1,10 @@
 package org.zorel.olccs.models
 
-import org.slf4j.LoggerFactory
-import scala.xml.{Elem, XML}
 import org.json4s.JsonDSL._
-import org.zorel.olccs.elasticsearch._
-import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.search.SearchHit
 import org.json4s.jackson.JsonMethods._
-import uk.co.bigbeeconsultants.http._
-import uk.co.bigbeeconsultants.http.request.RequestBody
-import uk.co.bigbeeconsultants.http.header._
+
 import scala.collection.immutable.Map
-import org.elasticsearch.index.query.{FilterBuilders, QueryBuilders}
-import header.HeaderName._
-import org.jsoup.Jsoup
-import scala.Some
-import uk.co.bigbeeconsultants.http.header.Cookie
-import javax.net.ssl._
-import java.security.cert.X509Certificate
-import java.security.SecureRandom
-import org.zorel.olccs.ssl
+import scala.xml.Elem
 
 class CustomBoard(name: String,
              get_url: String,

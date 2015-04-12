@@ -33,7 +33,7 @@ abstract class Board(val name: String,
 
   val l = LoggerFactory.getLogger(getClass)
   val lock: AtomicBoolean = new AtomicBoolean(false)
-  var lastid=0
+  var lastid=0L
 
   def backend_orig: Elem = {
 //    if(lock.get() == true) {
@@ -82,7 +82,7 @@ abstract class Board(val name: String,
     } catch {
       case ex : Throwable =>
         l.error("Oops in backend reload for " + name)
-        //        l.error(ex.getStackTrace.mkString("\n"))
+        l.error(ex.getStackTrace.mkString("\n"))
 
         //        l.error(response.body.asString)
         //XML.withSAXParser(p).loadString()

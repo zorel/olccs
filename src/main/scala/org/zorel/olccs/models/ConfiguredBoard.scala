@@ -1,25 +1,19 @@
 package org.zorel.olccs.models
 
 
-import org.slf4j.LoggerFactory
-import scala.xml.{Elem, XML}
-import org.json4s.JsonDSL._
-import org.zorel.olccs.elasticsearch._
-import org.elasticsearch.action.search.SearchResponse
-import org.elasticsearch.search.SearchHit
-import org.json4s.jackson.JsonMethods._
-import uk.co.bigbeeconsultants.http._
-import uk.co.bigbeeconsultants.http.request.RequestBody
-import uk.co.bigbeeconsultants.http.header._
-import scala.collection.immutable.Map
-import org.elasticsearch.index.query.{FilterBuilders, QueryBuilders}
+import java.security.SecureRandom
+import javax.net.ssl._
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Entities.EscapeMode
-import scala.Some
-import javax.net.ssl._
-import java.security.SecureRandom
 import org.zorel.olccs.ssl
+import uk.co.bigbeeconsultants.http._
+import uk.co.bigbeeconsultants.http.header._
+import uk.co.bigbeeconsultants.http.request.RequestBody
+
+import scala.collection.immutable.Map
+import scala.xml.XML
 
 class ConfiguredBoard(name: String,
              get_url: String,
@@ -31,6 +25,8 @@ class ConfiguredBoard(name: String,
              val cookie_name: String,
              val login_parameter: String,
              val password_parameter: String) extends Board(name, get_url, lastid_parameter, slip_type, post_url, post_parameter) {
+
+  val store = LruCache()
 
   lastid = {
     try {
@@ -58,7 +54,7 @@ class ConfiguredBoard(name: String,
   def index {
     l.debug("Start: index tribune %s" format name)
     val b = backend_orig
-    (b \ "post" filter( x => (x \ "@id").text.toInt > lastid)).reverse.foreach { p =>
+    (b \ "post" filter( x => (x \ "@id").text.toLong > lastid)).reverse.foreach { p =>
       l.debug("last: " + lastid + "=> " + (p \ "@id").text)
       val m = slip_type match {
         case Slip.Encoded => "<message>" + (p \ "message").text.replaceAll("""(?m)\s+""", " ") + "</message>"
@@ -79,7 +75,7 @@ class ConfiguredBoard(name: String,
 
       // Get back the string of the body.
 //      l.info(doc.body().html())
-        lastid = (p \ "@id").text.toInt
+        lastid = (p \ "@id").text.toLong
         post = Post(name,
           (p \ "@id").text,
           (p \ "@time").text,
@@ -87,6 +83,7 @@ class ConfiguredBoard(name: String,
           (p \ "login").text.replaceAll("""(?m)\s+""", " ").replaceAll("\\p{Cntrl}", ""),
           XML.loadString(doc.body().html())
         )
+      val key = (p \ "@id").text.toLong
 //      } catch {
 //        case ex: Throwable => {
 //          l.info(m)
@@ -95,9 +92,11 @@ class ConfiguredBoard(name: String,
 //        }
 //      }
 
-      ElasticSearch.index(name, post)
+      store(key,post)
+
     }
     l.debug("End: index tribune %s" format name)
+    l.info("Store size %s" format store.size)
   }
 
   // From: initial (eq. to last)
@@ -105,61 +104,15 @@ class ConfiguredBoard(name: String,
   // Size: maximum size of backend, in number of posts
   def backend(from:Int=0, to:Option[Int]=None, size:Int=50): List[Post] = {
     l.debug("Entering backend for %s" format name)
-//    l.info("==> %s %s %s".format(from, to, size))
-    val q = to match {
-      case Some(n) => QueryBuilders.rangeQuery("id").from(from).to(n)
-      case None => QueryBuilders.rangeQuery("id").from(from)
+    l.info("==> %s %s %s".format(from, to, size))
+    if (from != 0) {
+      store.descendingPosts(150).filter(p => p.id > from)
+    } else {
+      store.descendingPosts(150)
     }
 
-    val response: SearchResponse = ElasticSearch.query(name, q, size)
-    val t = for (h: SearchHit <- response.getHits().hits()) yield {
-      val id = h.field("id").getValue[Int]
-      val time = h.field("time").getValue[String]
-      val info = h.field("info").getValue[String]
-      val login = h.field("login").getValue[String]
-      val message = h.field("message").getValue[String]
-      Post(name, id, time, info, login, message)
-    }
-    t.toList
   }
 
-  def search(query:String, from:Int=0, to:Option[Int]=None, size:Int=50): List[Post] = {
-    l.debug("Entering search for %s".format(name))
-    val q = QueryBuilders.queryString(query)
-
-    val response: SearchResponse = ElasticSearch.query(name, q, size)
-    val t = for (h: SearchHit <- response.getHits().hits()) yield {
-      val id = h.field("id").getValue[Int]
-      val time = h.field("time").getValue[String]
-      val info = h.field("info").getValue[String]
-      val login = h.field("login").getValue[String]
-      val message = h.field("message").getValue[String]
-      Post(name, id, time, info, login, message)
-    }
-    t.toList
-  }
-
-  def search_json(q:String, from:Int=0, to:Option[Int]=None, size:Int=50): String = {
-
-    compact(render((("board" ->
-      ("site" -> name)) ~
-      ("posts" -> search(q,from,to,size).map { p =>
-        (("id" -> p.id))}))))
-  }
-
-  def search_xml(q:String, from:Int=0, to:Option[Int]=None, size:Int=50): Elem = {
-    <board site={name}>
-      {
-      search(q,from,to,size).map { p =>
-        p.to_xml
-      }
-      }
-    </board>
-  }
-
-  def search_tsv(q:String, from:Int=0, to:Option[Int]=None, size:Int=50): String = {
-    "id\ttime\tinfo\tlogin\tmessage\n" + search(q,from,to,size).reverse.map(_.to_tsv).mkString("")
-  }
 
   override def post(cookies: Map[String, String], ua: String, content: String): String = {
     val ret = super.post(cookies, ua, content)
@@ -177,6 +130,7 @@ class ConfiguredBoard(name: String,
     val minutes = horloge.substring(2,4)
     val seconds = horloge.substring(4,6)
     // TODO
+    Nil
   }
 
   def login(login: String, password:String): Map[String,String] = {

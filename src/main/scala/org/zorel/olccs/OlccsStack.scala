@@ -1,12 +1,13 @@
 package org.zorel.olccs
 
-import org.scalatra._
-import scalate.ScalateSupport
+import javax.servlet.http.HttpServletRequest
+
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import javax.servlet.http.HttpServletRequest
-import collection.mutable
-import org.zorel.olccs.auth.AuthenticationSupport
+import org.scalatra._
+import org.scalatra.scalate.ScalateSupport
+
+import scala.collection.mutable
 
 trait OlccsStack extends ScalatraServlet
   with ScalateSupport
