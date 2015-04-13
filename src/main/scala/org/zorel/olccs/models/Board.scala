@@ -140,9 +140,9 @@ abstract class Board(val name: String,
   // From: initial (eq. to last)
   // To:
   // Size: maximum size of backend, in number of posts
-  def backend(from:Int, to:Option[Int], size:Int): List[Post]
+  def backend(from:Long, to:Option[Int], size:Int): List[Post]
 
-  def backend_json(from:Int=0, to:Option[Int]=None, size:Int=50): String = {
+  def backend_json(from:Long=0, to:Option[Int]=None, size:Int=50): String = {
 
     compact(render(("board" ->
       ("site" -> name)) ~
@@ -155,7 +155,7 @@ abstract class Board(val name: String,
       })))
   }
 
-  def backend_xml(from:Int=0, to:Option[Int]=None, size:Int=50): Elem = {
+  def backend_xml(from:Long=0, to:Option[Int]=None, size:Int=50): Elem = {
     <board site={name}>
       {
       backend(from,to,size).map { p =>
@@ -165,7 +165,7 @@ abstract class Board(val name: String,
     </board>
   }
 
-  def backend_tsv(from:Int=0, to:Option[Int]=None, size:Int=50): String = {
+  def backend_tsv(from:Long=0, to:Option[Int]=None, size:Int=50): String = {
 //    "board\tid\ttime\tinfo\tlogin\tmessage\n" +
     backend(from,to,size).reverseMap(_.to_tsv).mkString("")
   }

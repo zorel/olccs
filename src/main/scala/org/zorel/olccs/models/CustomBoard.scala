@@ -13,7 +13,7 @@ class CustomBoard(name: String,
              post_url: String,
              post_parameter: String) extends Board(name, get_url, lastid_parameter, slip_type, post_url, post_parameter) {
 
-  def backend(from: Int, to: Option[Int], size: Int): List[Post] = {
+  def backend(from: Long, to: Option[Int], size: Int): List[Post] = {
     backend
   }
 

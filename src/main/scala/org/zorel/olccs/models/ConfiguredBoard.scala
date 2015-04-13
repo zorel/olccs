@@ -102,7 +102,7 @@ class ConfiguredBoard(name: String,
   // From: initial (eq. to last)
   // To:
   // Size: maximum size of backend, in number of posts
-  def backend(from:Int=0, to:Option[Int]=None, size:Int=50): List[Post] = {
+  def backend(from:Long=0, to:Option[Int]=None, size:Int=50): List[Post] = {
     l.debug("Entering backend for %s" format name)
     if (from != 0) {
       store.descendingPosts(150).filter(p => p.id > from)
