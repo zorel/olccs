@@ -51,7 +51,7 @@ class OlccsServlet extends OlccsStack {
 var $name = new Board('$name', false);
 $name.getUrl = 'ga';
 $name.postUrl = 'bu';
-$name.cookie = 'zo';
+$name.cookie = 'zo=';
 GlobalBoards['$name'] = $name;
 """
     }.mkString("\n")
