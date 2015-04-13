@@ -46,12 +46,16 @@ class OlccsServlet extends OlccsStack {
     ConfiguredBoard.boards.map { case (name, b) =>
       val name = b.name
       val cookie = b.cookie_name
+      val color = b.color
+      val aliases = b.aliases
 
       s"""
 var $name = new Board('$name', false);
 $name.getUrl = 'ga';
 $name.postUrl = 'bu';
-$name.cookie = 'zo=';
+$name.cookie = '$cookie';
+$name.color = '$color';
+$name.aliases = '$aliases';
 GlobalBoards['$name'] = $name;
 """
     }.mkString("\n")

@@ -8,7 +8,7 @@ dlfp.getUrl = 'http://linuxfr.org/board/index.xml?last=%i';
 dlfp.postUrl = 'http://linuxfr.org/board';
 //dlfp.postData = "board[message]=%m";
 dlfp.alias = "linuxfr,beyrouth,passite,dapassite";
-dlfp.cookie = '_linuxfr.org_session=';
+dlfp.cookie = 'linuxfr.org_session=';
 GlobalBoards['dlfp'] = dlfp;
 
 var batavie = new Board('batavie', false);

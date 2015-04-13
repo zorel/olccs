@@ -17,15 +17,17 @@ import scala.collection.immutable.Map
 import scala.xml.XML
 
 class ConfiguredBoard(name: String,
-             get_url: String,
-             lastid_parameter: String,
-             slip_type: Slip.Value,
-             post_url: String,
-             post_parameter: String,
-             val login_url: String,
-             val cookie_name: String,
-             val login_parameter: String,
-             val password_parameter: String) extends Board(name, get_url, lastid_parameter, slip_type, post_url, post_parameter) {
+                      get_url: String,
+                      lastid_parameter: String,
+                      slip_type: Slip.Value,
+                      post_url: String,
+                      post_parameter: String,
+                      val login_url: String,
+                      val cookie_name: String,
+                      val login_parameter: String,
+                      val password_parameter: String,
+                      val color: String,
+                      val aliases: String) extends Board(name, get_url, lastid_parameter, slip_type, post_url, post_parameter) {
 
   val store = LruCache()
   val storeLogger = LoggerFactory.getLogger("store")
@@ -161,16 +163,19 @@ object ConfiguredBoard {
 //  var boards: ArrayBuffer[Board] = new ArrayBuffer[Board]()
   var boards = new scala.collection.mutable.HashMap[String, ConfiguredBoard]()
   def apply(name: String,
-    get_url: String,
-    lastid_parameter: String,
-    slip_type: Slip.Value,
-    post_url: String,
-    post_parameter: String,
-    login_url: String,
-    cookie_name: String,
-    login_parameter: String,
-    password_parameter: String) = {
-      val b = new ConfiguredBoard(name, get_url, lastid_parameter, slip_type, post_url, post_parameter, login_url, cookie_name, login_parameter, password_parameter)
+            get_url: String,
+            lastid_parameter: String,
+            slip_type: Slip.Value,
+            post_url: String,
+            post_parameter: String,
+            login_url: String,
+            cookie_name: String,
+            login_parameter: String,
+            password_parameter: String,
+            color: String,
+            aliases: String
+             ) = {
+    val b = new ConfiguredBoard(name, get_url, lastid_parameter, slip_type, post_url, post_parameter, login_url, cookie_name, login_parameter, password_parameter, color, aliases)
       boards += (name -> b)
       b
     }
