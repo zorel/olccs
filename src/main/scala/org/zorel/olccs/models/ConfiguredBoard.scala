@@ -37,7 +37,7 @@ class ConfiguredBoard(name: String,
   }
 
 
-// TODO
+//
 //  val raw = <post><message>test &amp; <b><u><i>meuh</i></u></b></message></post>
 //  (raw \ "message").toString
 //  (raw \ "message").text
@@ -96,7 +96,7 @@ class ConfiguredBoard(name: String,
 
     }
     l.debug("End: index tribune %s" format name)
-    l.info("Store size %s" format store.size)
+    l.debug("Store size %s" format store.size)
   }
 
   // From: initial (eq. to last)
@@ -104,7 +104,6 @@ class ConfiguredBoard(name: String,
   // Size: maximum size of backend, in number of posts
   def backend(from:Int=0, to:Option[Int]=None, size:Int=50): List[Post] = {
     l.debug("Entering backend for %s" format name)
-    l.info("==> %s %s %s".format(from, to, size))
     if (from != 0) {
       store.descendingPosts(150).filter(p => p.id > from)
     } else {
@@ -123,14 +122,10 @@ class ConfiguredBoard(name: String,
   // From: initial (eq. to last)
   // To:
   // Size: maximum size of backend, in number of posts
-  def post_from_horloge(horloge:String, from:Int = Int.MaxValue): List[Post] = {
+  def post_from_horloge(horloge:String, from:Long = Int.MaxValue): List[Post] = {
     l.debug("Entering post_from_horloge for %s" format name)
     //    l.info("==> %s %s %s".format(from, to, size))
-    val hours = horloge.substring(0,2)
-    val minutes = horloge.substring(2,4)
-    val seconds = horloge.substring(4,6)
-    // TODO
-    Nil
+    store.descendingPosts(Int.MaxValue).find { p => p.time.endsWith(horloge) }.toList
   }
 
   def login(login: String, password:String): Map[String,String] = {

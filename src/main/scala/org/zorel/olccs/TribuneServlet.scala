@@ -70,7 +70,7 @@ class TribuneServlet extends OlccsStack {
 
   get("/:tribune/reference-search(.:ext)") {
     val b = ConfiguredBoard.boards(params("tribune"))
-    val from = params.getOrElse("from", Int.MaxValue.toString).toInt
+    val from = params.getOrElse("from", Int.MaxValue.toString).toLong
     val res = b.post_from_horloge(params("timestamp"), from)
     res.length match {
       case 0 => NotFound("no response")
@@ -119,7 +119,6 @@ class TribuneServlet extends OlccsStack {
     val user_agent = params.get("ua") match {
       case Some(u) => u
       case None => request.header("User-Agent").getOrElse("").toString
-
     }
 
     var xpostid = ""

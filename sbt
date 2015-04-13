@@ -3,7 +3,7 @@
 # A more capable sbt runner, coincidentally also called sbt.
 # Author: Paul Phillips <paulp@typesafe.com>
 
-# todo - make this dynamic
+
 declare -r sbt_release_version=0.12.0
 declare -r sbt_snapshot_version=0.13.0-SNAPSHOT
 

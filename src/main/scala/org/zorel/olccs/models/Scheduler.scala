@@ -16,7 +16,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * To change this template use File | Settings | File Templates.
  */
 
-// TODO: http://doc.akka.io/docs/akka/2.2.3/scala/howto.html#case-study-an-auto-updating-cache-using-actors
 object Scheduler {
   val system = ActorSystem("OlccsSystem")
   val reload_actor = system.actorOf(Props[ReloadActor], name = "reload_actor")

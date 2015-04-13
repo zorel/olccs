@@ -37,8 +37,7 @@ class Post(val board: String, val id: Long, val time: String, val info: String, 
   }
 
   def to_tsv: String = {
-    // TODO: utiliser les formats scala plutôt que Java et supprimer le .intValue()
-    "%s\t%d\t%s\t%s\t%s\t%s\n".format(board, id.intValue(), time, info, login, message)
+    "%s\t%d\t%s\t%s\t%s\t%s\n".format(board, id.toLong, time, info, login, message)
   }
 }
 

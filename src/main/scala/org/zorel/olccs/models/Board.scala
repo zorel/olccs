@@ -1,26 +1,27 @@
 package org.zorel.olccs.models
 
 
-import org.slf4j.LoggerFactory
-import scala.util.{Success, Failure, Try}
-import scala.xml.{Elem, XML}
-import org.json4s.JsonDSL._
+import java.security.SecureRandom
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.net.ssl._
+
+import com.netaporter.uri.dsl._
+import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
-import uk.co.bigbeeconsultants.http._
-import uk.co.bigbeeconsultants.http.request.RequestBody
-import uk.co.bigbeeconsultants.http.header._
-import scala.collection.immutable.Map
-import header.HeaderName._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Entities.EscapeMode
-import com.netaporter.uri.dsl._
-import scala.Some
-import uk.co.bigbeeconsultants.http.header.Cookie
-import javax.net.ssl._
-import java.security.SecureRandom
+import org.slf4j.LoggerFactory
 import org.zorel.olccs.ssl
+import uk.co.bigbeeconsultants.http._
+import uk.co.bigbeeconsultants.http.header.HeaderName._
+import uk.co.bigbeeconsultants.http.header.{Cookie, _}
+import uk.co.bigbeeconsultants.http.request.RequestBody
+import uk.co.bigbeeconsultants.http.response._
+
+import scala.collection.immutable.Map
+import scala.util.{Failure, Success, Try}
+import scala.xml.{Elem, XML}
 
 
 
@@ -73,7 +74,10 @@ abstract class Board(val name: String,
         l.error("Error fetching " + name + " : " + thrown.getMessage)
       }
       case Success(s) => {
-        s
+        s.status match {
+          case Status.S304_NotModified => return <board></board>
+          case _ => s
+        }
       }
     }
 
@@ -82,7 +86,7 @@ abstract class Board(val name: String,
     } catch {
       case ex : Throwable =>
         l.error("Oops in backend reload for " + name)
-        l.error(ex.getStackTrace.mkString("\n"))
+        l.debug(ex.getStackTrace.mkString("\n"))
 
         //        l.error(response.body.asString)
         //XML.withSAXParser(p).loadString()
