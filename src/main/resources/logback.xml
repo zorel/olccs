@@ -23,8 +23,20 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <logger name="uk.co.bigbeeconsultants.http" level="info" additivity="false">
         <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.zorel" level="info" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="store" level="info" additivity="false">
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <root level="warn">
         <appender-ref ref="FILE" />
     </root>
+
 </configuration>

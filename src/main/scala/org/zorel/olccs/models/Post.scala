@@ -66,10 +66,10 @@ object Post {
       }
     }
 
-    (message \ "a").map { a =>
-      l.info("a trouvé dans message, href= %s".format(a.attributes.get("href").getOrElse(Text("")).text))
-//      Link(a.attributes.get("href").getOrElse(Text("")).text, board)
-    }
+//    (message \ "a").map { a =>
+////      l.info("a trouvé dans message, href= %s".format(a.attributes.get("href").getOrElse(Text("")).text))
+////      Link(a.attributes.get("href").getOrElse(Text("")).text, board)
+//    }
 
     val t = new RuleTransformer(rule).transform(message.asInstanceOf[Elem]).toString()
     val m = if(t == "<message/>")

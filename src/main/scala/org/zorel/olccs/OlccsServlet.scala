@@ -1,5 +1,6 @@
 package org.zorel.olccs
 
+import org.slf4j.LoggerFactory
 import org.zorel.olccs.models.{ConfiguredBoard, Board}
 import javax.net.ssl._
 import org.zorel.olccs.ssl._
@@ -9,6 +10,8 @@ import scala.util.parsing.json.JSON
 import org.scalatra.{Ok, BadRequest}
 
 class OlccsServlet extends OlccsStack {
+
+  val l = LoggerFactory.getLogger(getClass)
 
   get("/") {
     <html>plop</html>
@@ -36,6 +39,22 @@ class OlccsServlet extends OlccsStack {
       }
       case None => ""
     }
+  }
+
+  get("/boards_config.js") {
+    contentType = "text/javascript"
+    ConfiguredBoard.boards.map { case (name, b) =>
+      val name = b.name
+      val cookie = b.cookie_name
+
+      s"""
+var $name = new Board('$name', false);
+$name.getUrl = 'ga';
+$name.postUrl = 'bu';
+$name.cookie = 'zo';
+GlobalBoards['$name'] = $name;
+"""
+    }.mkString("\n")
   }
 
   get("/boards.xml") {
@@ -70,17 +89,17 @@ class OlccsServlet extends OlccsStack {
             params.getOrElse("ext","xml") match {
               case "json" => {
                 contentType = "application/json"
-                val t = for((k,v) <- map) yield ConfiguredBoard.boards(k).backend_json(v.toInt,None,size)
+                val t = for((k,v) <- map) yield ConfiguredBoard.boards(k).backend_json(v.toLong,None,size)
                 Ok("[" + t.mkString(",") + "]")
               }
             case "xml" => {
               contentType = "application/xml"
-              val t = for((k,v) <- map) yield ConfiguredBoard.boards(k).backend_xml(v.toInt,None,size)
+              val t = for((k,v) <- map) yield ConfiguredBoard.boards(k).backend_xml(v.toLong,None,size)
               Ok("<boards>" + t.mkString("") + "</boards>")
               }
               case "tsv" => {
                 contentType = "text/tsv"
-                val t = for((k,v) <- map) yield ConfiguredBoard.boards(k).backend_tsv(v.toInt,None,size)
+                val t = for((k,v) <- map) yield ConfiguredBoard.boards(k).backend_tsv(v.toLong,None,size)
                 Ok(t.mkString(""))
               }
             }

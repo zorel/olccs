@@ -1,8 +1,0 @@
-<%@ val token: String %>
-<!doctype html>
-<html>
-<body>
-    <h1>api key:</h1>
-    <p><%=token%></p>
-</body>
-</html>

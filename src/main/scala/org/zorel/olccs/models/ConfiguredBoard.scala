@@ -7,6 +7,7 @@ import javax.net.ssl._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Entities.EscapeMode
+import org.slf4j.LoggerFactory
 import org.zorel.olccs.ssl
 import uk.co.bigbeeconsultants.http._
 import uk.co.bigbeeconsultants.http.header._
@@ -27,6 +28,7 @@ class ConfiguredBoard(name: String,
              val password_parameter: String) extends Board(name, get_url, lastid_parameter, slip_type, post_url, post_parameter) {
 
   val store = LruCache()
+  val storeLogger = LoggerFactory.getLogger("store")
 
   lastid = {
     try {
@@ -95,6 +97,8 @@ class ConfiguredBoard(name: String,
       store(key,post)
 
     }
+    storeLogger.info("Board %s store size %s" format(name, store.size))
+
     l.debug("End: index tribune %s" format name)
     l.debug("Store size %s" format store.size)
   }

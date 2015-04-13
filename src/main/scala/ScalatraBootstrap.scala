@@ -8,8 +8,8 @@ import org.zorel.olccs.models._
 
 class ScalatraBootstrap extends LifeCycle {
   val system = ActorSystem("OlccsSystem")
-  ConfiguredBoard("euromussels", "http://euromussels.eu/?q=tribune.xml","last_id",Slip.Encoded,"http://euromussels.eu/?q=tribune/post","message","http://euromussels.eu/node?destination=node","","name","pass")
-  ConfiguredBoard("sveetch", "http://www.sveetch.net/tribune/remote/xml/","last_id",Slip.Raw,"http://www.sveetch.net/tribune/post/xml/","content","http://www.sveetch.net/accounts/login/","","username","password")
+  ConfiguredBoard("euromussels", "http://euromussels.eu/?q=tribune.xml", "last_id",Slip.Encoded,"http://euromussels.eu/?q=tribune/post","message","http://euromussels.eu/node?destination=node","","name","pass")
+  ConfiguredBoard("sveetch", "http://www.sveetch.net/tribune/remote/xml/", "last_id",Slip.Raw,"http://www.sveetch.net/tribune/post/xml/","content","http://www.sveetch.net/accounts/login/","","username","password")
   ConfiguredBoard("dlfp", "https://linuxfr.org/board/index.xml","",Slip.Encoded,"https://linuxfr.org/board","board[message]","https://linuxfr.org/compte/connexion","","account[login]","account[password]")
   ConfiguredBoard("hadoken", "http://hadoken.free.fr/board/remote.php","",Slip.Encoded,"http://hadoken.free.fr/board/post.php","message","","","","")
 //  ConfiguredBoard("see", "http://tout.essaye.sauf.ca/tribune.xml","last_id",Slip.Raw,"http://tout.essaye.sauf.ca/tribune/post","message","http://tout.essaye.sauf.ca/user/login","","name","pass")
