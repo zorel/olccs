@@ -43,7 +43,7 @@ class TribuneServlet extends OlccsStack {
       }
       case _ => {
         val b = ConfiguredBoard.boards(params("tribune"))
-        val from = params.getOrElse("last", "0").toInt
+        val from = params.getOrElse("last", "0").toLong
         val to: Option[Int] = params.get("to") match {
           case Some(t) => Some(t.toInt)
           case None => None
