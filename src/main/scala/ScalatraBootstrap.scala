@@ -14,7 +14,7 @@ class ScalatraBootstrap extends LifeCycle {
   ConfiguredBoard("hadoken", "http://hadoken.free.fr/board/remote.php", "", Slip.Encoded, "http://hadoken.free.fr/board/post.php", "message", "", "", "", "", "#77aadd", "axel,waf")
 //  ConfiguredBoard("see", "http://tout.essaye.sauf.ca/tribune.xml","last_id",Slip.Raw,"http://tout.essaye.sauf.ca/tribune/post","message","http://tout.essaye.sauf.ca/user/login","","name","pass")
 //  ConfiguredBoard("olo", "http://board.olivierl.org/remote.xml","",Slip.Raw,"http://board.olivierl.org/add.php","message","","","","")
-  ConfiguredBoard("moules", "http://moules.org/board/backend", "last_id", Slip.Encoded, "http://moules.org/board/add", "message", "http://moules.org/board", "", "name", "pass", "#ffe3c9", "")
+  ConfiguredBoard("moules", "http://moules.org/board/backend", "last_id", Slip.Raw, "http://moules.org/board/add", "message", "http://moules.org/board", "", "name", "pass", "#ffe3c9", "")
   ConfiguredBoard("batavie", "http://batavie.leguyader.eu/remote.xml", "last", Slip.Raw, "http://batavie.leguyader.eu/index.php/add", "message", "http://batavie.leguyader.eu/user.php/login", "", "login", "passwd", "#ffccaa", "")
 //  ConfiguredBoard("finss", "http://www.finss.fr/drupal/tribune/xml","",Slip.Raw,"http://www.finss.fr/drupal/tribune/post","message","http://www.finss.fr/drupal/user/login","","name","pass")
   ConfiguredBoard("ratatouille", "http://ratatouille.leguyader.eu/data/backend.xml", "", Slip.Raw, "http://ratatouille.leguyader.eu/add.php", "message", "http://ratatouille.leguyader.eu/loginA.php", "", "login", "password", "#cacaca", "")
