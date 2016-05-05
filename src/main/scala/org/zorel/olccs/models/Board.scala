@@ -204,7 +204,7 @@ abstract class Board(val name: String,
     val response = http_client.post(post_url, Some(requestBody), headers, cj)
 
     response.headers.get(HeaderName("X-Post-Id")) match {
-      case Some(h) => h.toString()
+      case Some(h) => h.value
       case None => ""
     }
 
